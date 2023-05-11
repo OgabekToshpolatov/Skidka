@@ -112,10 +112,9 @@ app.UseCors("CorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<ErrorHandlerMiddleware>();
-app.MapControllers();
-
-await InitializeDataService.CreateDefaultRoles(app);
 await InitializeDataService.CreateDefaultAdmin(app);
+await InitializeDataService.CreateDefaultRoles(app);
 await InitializeDataService.CreateDefaultUser(app);
 await InitializeDataService.CreateDefaultMerchand(app);
+app.MapControllers();
 app.Run();
