@@ -51,7 +51,7 @@ namespace ArzonOL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductCategoryEntity",
+                name: "ProductCategories",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -62,7 +62,7 @@ namespace ArzonOL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductCategoryEntity", x => x.Id);
+                    table.PrimaryKey("PK_ProductCategories", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -212,7 +212,7 @@ namespace ArzonOL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductCategoryApproachEntity",
+                name: "ProductCategoryApproaches",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -224,11 +224,11 @@ namespace ArzonOL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductCategoryApproachEntity", x => x.Id);
+                    table.PrimaryKey("PK_ProductCategoryApproaches", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ProductCategoryApproachEntity_ProductCategoryEntity_ProductCategoryId",
+                        name: "FK_ProductCategoryApproaches_ProductCategories_ProductCategoryId",
                         column: x => x.ProductCategoryId,
-                        principalTable: "ProductCategoryEntity",
+                        principalTable: "ProductCategories",
                         principalColumn: "Id");
                 });
 
@@ -251,7 +251,6 @@ namespace ArzonOL.Migrations
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    BoughtCount = table.Column<long>(type: "bigint", nullable: false),
                     ProductCategoryApproachId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CardId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CartId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -274,9 +273,9 @@ namespace ArzonOL.Migrations
                         principalTable: "Carts",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Products_ProductCategoryApproachEntity_ProductCategoryApproachId",
+                        name: "FK_Products_ProductCategoryApproaches_ProductCategoryApproachId",
                         column: x => x.ProductCategoryApproachId,
-                        principalTable: "ProductCategoryApproachEntity",
+                        principalTable: "ProductCategoryApproaches",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Products_WishLists_WishListId",
@@ -286,21 +285,45 @@ namespace ArzonOL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductMediaEntity",
+                name: "BoughtProducts",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ImageName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductMediaEntity", x => x.Id);
+                    table.PrimaryKey("PK_BoughtProducts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ProductMediaEntity_Products_ProductId",
+                        name: "FK_BoughtProducts_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_BoughtProducts_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductMedias",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ImageBase64String = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductMedias", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductMedias_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id");
@@ -375,18 +398,28 @@ namespace ArzonOL.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BoughtProducts_ProductId",
+                table: "BoughtProducts",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BoughtProducts_UserId",
+                table: "BoughtProducts",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Carts_UserId1",
                 table: "Carts",
                 column: "UserId1");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductCategoryApproachEntity_ProductCategoryId",
-                table: "ProductCategoryApproachEntity",
+                name: "IX_ProductCategoryApproaches_ProductCategoryId",
+                table: "ProductCategoryApproaches",
                 column: "ProductCategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductMediaEntity_ProductId",
-                table: "ProductMediaEntity",
+                name: "IX_ProductMedias_ProductId",
+                table: "ProductMedias",
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
@@ -444,7 +477,10 @@ namespace ArzonOL.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "ProductMediaEntity");
+                name: "BoughtProducts");
+
+            migrationBuilder.DropTable(
+                name: "ProductMedias");
 
             migrationBuilder.DropTable(
                 name: "ProductVoters");
@@ -459,13 +495,13 @@ namespace ArzonOL.Migrations
                 name: "Carts");
 
             migrationBuilder.DropTable(
-                name: "ProductCategoryApproachEntity");
+                name: "ProductCategoryApproaches");
 
             migrationBuilder.DropTable(
                 name: "WishLists");
 
             migrationBuilder.DropTable(
-                name: "ProductCategoryEntity");
+                name: "ProductCategories");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

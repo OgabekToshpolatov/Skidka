@@ -45,7 +45,6 @@ public class LoginService : ILoginService
            new Claim(ClaimTypes.Role, role),
            new Claim(ClaimTypes.Email, email)
        };
-       
        var tokenHandler = new JwtSecurityTokenHandler();
 
        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]!);
