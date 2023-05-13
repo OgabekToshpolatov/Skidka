@@ -21,11 +21,14 @@ public class BaseProductEntity : BaseEntity
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public virtual ICollection<ProductVoterEntity>? Voters { get; set; }
-    public long BoughtCount { get; set; } //  sotib olinganlar soni
     public Guid? ProductCategoryApproachId { get; set; } 
     public virtual ProductCategoryApproachEntity? ProductCategoryApproach { get; set; }
     public Guid? CardId { get; set; }
     public virtual CartEntity? Cart { get; set; }
     public Guid? WishListId { get; set; }
     public virtual WishListEntity? WishList { get; set; }
+    [ForeignKey(nameof(UserEntity))]
+    public string? UserEntityId {get; set;}
+    public virtual UserEntity? UserEntity {get; set;}
+    public virtual ICollection<BoughtProductEntity>? BoughtProducts {get; set;}
 }

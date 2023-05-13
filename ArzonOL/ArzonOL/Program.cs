@@ -12,6 +12,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ArzonOL.Services.CategoryService;
+using ArzonOL.Services.ProductServeice.Interfaces;
+using ArzonOL.Services.ProductServeice;
+using ArzonOL.Services.ProductMediaService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +26,9 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IRegisterService, RegisterService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryApproachService, CategoryApproachService>();
+builder.Services.AddScoped<IProductMediaService, ProductMediaService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
@@ -100,11 +105,10 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseHttpsRedirection();
 
@@ -112,9 +116,9 @@ app.UseCors("CorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<ErrorHandlerMiddleware>();
+app.MapControllers();
 await InitializeDataService.CreateDefaultAdmin(app);
 await InitializeDataService.CreateDefaultRoles(app);
 await InitializeDataService.CreateDefaultUser(app);
 await InitializeDataService.CreateDefaultMerchand(app);
-app.MapControllers();
 app.Run();

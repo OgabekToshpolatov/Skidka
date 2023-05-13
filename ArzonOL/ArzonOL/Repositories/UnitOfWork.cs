@@ -12,6 +12,8 @@ public class UnitOfWork : IUnitOfWork
     public IUserRepository UserRepository  { get; }
     public ICategoryRepository CategoryRepository { get; }
 
+    public IBoughtProductRepository BoughtProductRepository {get;}
+
     private readonly AppDbContext _context;
 
     public UnitOfWork(AppDbContext context)
@@ -23,6 +25,7 @@ public class UnitOfWork : IUnitOfWork
         ProductRepository = new ProductRepository(_context);
         UserRepository = new UserRepository(_context);
         CategoryRepository = new CategoryRepository(_context);
+        BoughtProductRepository = new BoughtProductRepository(_context);
     }
 
     public void Dispose()
