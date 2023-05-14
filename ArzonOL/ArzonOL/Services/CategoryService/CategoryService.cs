@@ -6,6 +6,7 @@ using ArzonOL.Repositories.Interfaces;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using ArzonOL.Services.CategoryService.Interfaces;
+using ArzonOL.Models;
 
 namespace ArzonOL.Services.CategoryService;
 
@@ -22,28 +23,38 @@ public class CategoryService : ICategoryService
         _logger = logger ;
         _unitOfWork = unitOfWork ;
     }
-    public async  ValueTask<CategoryResponseDto> CreateAsync(CreateOrUpdateCategoryDto model)
+    public async  ValueTask<Result<CategoryResponseDto>> CreateAsync(CreateOrUpdateCategoryDto model)
     {
-        var categoryNames = _unitOfWork.CategoryRepository.GetAll().Where(c => c.Name == model.Name);
-
-        foreach(var categoryName in categoryNames)
+        try
         {
+             var categoryNames = _unitOfWork.CategoryRepository.GetAll().Where(c => c.Name == model.Name);
+
+            foreach(var categoryName in categoryNames)
+            {
             if(categoryName.Name!.ToLower() == model.Name!.ToLower())
-                  throw new BadRequestException("category already exists");
-        }
-        
-        var category = new ProductCategoryEntity
-        {
-            Id = Guid.NewGuid(),
-            Name = model.Name,
-            Description = model.Description,
-            CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now
-        };
+                    throw new BadRequestException("category already exists");
+            }
 
-        var createCategory =await  _unitOfWork.CategoryRepository.AddAsync(category);
- 
-        return createCategory.Adapt<CategoryResponseDto>();
+            var category = new ProductCategoryEntity
+            {
+                Id = Guid.NewGuid(),
+                Name = model.Name,
+                Description = model.Description,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
+            };
+
+            var createCategory =await  _unitOfWork.CategoryRepository.AddAsync(category);
+
+            var returnModel = createCategory.Adapt<CategoryResponseDto>();
+
+            return new Result<CategoryResponseDto>(isSuccess:true){Data = returnModel};
+        }
+        catch (System.Exception e)
+        {
+            _logger.LogInformation("Error while creating Category");
+            throw new Exception(e.Message);
+        }
     }
 
     public async ValueTask<List<CategoryResponseDto>> GetAll()
