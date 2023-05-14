@@ -78,6 +78,7 @@ public class CategoryApproachService : ICategoryApproachService
             Id = existingCategoryApproach.Id,
             Name = existingCategoryApproach.Name,
             Description = existingCategoryApproach.Description,
+            ProductCategoryId = existingCategoryApproach.ProductCategoryId,
             CreatedAt = existingCategoryApproach.CreatedAt,
             UpdatedAt = existingCategoryApproach.UpdatedAt,
             Products = categoryProductListView

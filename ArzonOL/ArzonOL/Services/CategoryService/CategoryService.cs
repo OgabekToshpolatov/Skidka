@@ -6,7 +6,6 @@ using ArzonOL.Repositories.Interfaces;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using ArzonOL.Services.CategoryService.Interfaces;
-using ArzonOL.Models;
 
 namespace ArzonOL.Services.CategoryService;
 
@@ -23,7 +22,7 @@ public class CategoryService : ICategoryService
         _logger = logger ;
         _unitOfWork = unitOfWork ;
     }
-    public async  ValueTask<Result<CategoryResponseDto>> CreateAsync(CreateOrUpdateCategoryDto model)
+    public async  ValueTask<CategoryResponseDto> CreateAsync(CreateOrUpdateCategoryDto model)
     {
         try
         {
@@ -46,9 +45,7 @@ public class CategoryService : ICategoryService
 
             var createCategory =await  _unitOfWork.CategoryRepository.AddAsync(category);
 
-            var returnModel = createCategory.Adapt<CategoryResponseDto>();
-
-            return new Result<CategoryResponseDto>(isSuccess:true){Data = returnModel};
+            return createCategory.Adapt<CategoryResponseDto>();
         }
         catch (System.Exception e)
         {
