@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ArzonOL.Dtos.CategoryDto;
+namespace ArzonOL.Dtos.CategoryDtos;
 
 public class CreateOrUpdateCategoryApproachDto
 {

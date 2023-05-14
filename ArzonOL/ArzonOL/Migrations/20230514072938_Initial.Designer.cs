@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArzonOL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230512091351_Migrations")]
-    partial class Migrations
+    [Migration("20230514072938_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
