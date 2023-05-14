@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ArzonOL.Services.CategoryService;
+using ArzonOL.Services.CategoryService.Interfaces;
 using ArzonOL.Services.ProductServeice.Interfaces;
 using ArzonOL.Services.ProductServeice;
 using ArzonOL.Services.ProductMediaService;

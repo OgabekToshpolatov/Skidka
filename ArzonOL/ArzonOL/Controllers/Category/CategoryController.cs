@@ -1,6 +1,5 @@
-using ArzonOL.Dtos.CategoryDto;
-using ArzonOL.Services.CategoryService;
-using ArzonOL.ViewModels.Category;
+using ArzonOL.Dtos.CategoryDtos;
+using ArzonOL.Services.CategoryService.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArzonOL.Controllers.Category;
@@ -22,12 +21,12 @@ public class CategoryController:ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CategoryDtoView>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CategoryApproachResponseDto>))]
     public async Task<IActionResult> GetCategories()
                         => Ok(await _categoryService.GetAll());
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CategoryDtoView))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CategoryApproachResponseDto))]
     public async Task<IActionResult> PostCategory(CreateOrUpdateCategoryDto dto)
     {
         try
@@ -43,7 +42,7 @@ public class CategoryController:ControllerBase
     }
 
     [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryView))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryResponseIdDto))]
     public async Task<IActionResult> GetCategory(Guid id)
                          => Ok(await _categoryService.GetByIdAsync(id));
 
@@ -55,7 +54,7 @@ public class CategoryController:ControllerBase
                          => Ok(await _categoryService.Remove(id));
 
     [HttpPut("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDtoView))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryApproachResponseDto))]
     public async Task<IActionResult> UpdateCategory([FromRoute]Guid id, [FromBody]CreateOrUpdateCategoryDto dto)
     {
         if(!ModelState.IsValid)
