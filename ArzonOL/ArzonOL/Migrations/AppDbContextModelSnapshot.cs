@@ -156,6 +156,33 @@ namespace ArzonOL.Migrations
                     b.ToTable("Carts");
                 });
 
+            modelBuilder.Entity("ArzonOL.Entities.CartProduct", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CartId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CartId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("CartProducts");
+                });
+
             modelBuilder.Entity("ArzonOL.Entities.ProductCategoryApproachEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -494,7 +521,7 @@ namespace ArzonOL.Migrations
             modelBuilder.Entity("ArzonOL.Entities.BaseProductEntity", b =>
                 {
                     b.HasOne("ArzonOL.Entities.CartEntity", "Cart")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("CartId");
 
                     b.HasOne("ArzonOL.Entities.ProductCategoryApproachEntity", "ProductCategoryApproach")
@@ -540,6 +567,25 @@ namespace ArzonOL.Migrations
                         .HasForeignKey("UserId1");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ArzonOL.Entities.CartProduct", b =>
+                {
+                    b.HasOne("ArzonOL.Entities.CartEntity", "Cart")
+                        .WithMany("CartProducts")
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ArzonOL.Entities.BaseProductEntity", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cart");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("ArzonOL.Entities.ProductCategoryApproachEntity", b =>
@@ -648,7 +694,7 @@ namespace ArzonOL.Migrations
 
             modelBuilder.Entity("ArzonOL.Entities.CartEntity", b =>
                 {
-                    b.Navigation("Products");
+                    b.Navigation("CartProducts");
                 });
 
             modelBuilder.Entity("ArzonOL.Entities.ProductCategoryApproachEntity", b =>
