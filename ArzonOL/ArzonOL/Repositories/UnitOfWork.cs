@@ -13,6 +13,8 @@ public class UnitOfWork : IUnitOfWork
     public ICategoryRepository CategoryRepository { get; }
 
     public IBoughtProductRepository BoughtProductRepository {get;}
+    public ICartEntityRepository CartRepository {get;}
+    public ICartProductRepository CartProductRepository {get;}
 
     private readonly AppDbContext _context;
 
@@ -26,6 +28,8 @@ public class UnitOfWork : IUnitOfWork
         UserRepository = new UserRepository(_context);
         CategoryRepository = new CategoryRepository(_context);
         BoughtProductRepository = new BoughtProductRepository(_context);
+        CartRepository = new CartEntityRepository(_context);
+        CartProductRepository = new CartProductRepository(_context);
     }
 
     public void Dispose()

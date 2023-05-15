@@ -16,6 +16,8 @@ using ArzonOL.Services.CategoryService.Interfaces;
 using ArzonOL.Services.ProductServeice.Interfaces;
 using ArzonOL.Services.ProductServeice;
 using ArzonOL.Services.ProductMediaService;
+using ArzonOL.Services.CartService.Interfaces;
+using ArzonOL.Services.CartService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryApproachService, CategoryApproachService>();
 builder.Services.AddScoped<IProductMediaService, ProductMediaService>();
+builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IMailSender, MailSender>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

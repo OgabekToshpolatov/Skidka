@@ -14,7 +14,7 @@ public class AppDbContext : IdentityDbContext<UserEntity>
     public DbSet<ProductCategoryEntity>? ProductCategories {get; set;}
     public DbSet<ProductMediaEntity>? ProductMedias {get; set;}
     public DbSet<BoughtProductEntity>? BoughtProducts {get; set;}
-
+    public DbSet<CartProduct>? CartProducts { get; set; }
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
         // comment
