@@ -1,4 +1,6 @@
+# pragma warning disable
 using ArzonOL.Dtos.AuthDtos;
+using ArzonOL.Entities;
 using ArzonOL.Enums;
 using ArzonOL.Services.AuthService.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -12,11 +14,21 @@ public class AuthController : ControllerBase
 {
     private readonly ILoginService _loginService;
     private readonly IRegisterService _registerService;
+    private readonly UserManager<UserEntity> _userManager;
+    private readonly IConfiguration _configuration;
+    private readonly IMailSender _mailSender;
 
-    public AuthController(ILoginService loginService, IRegisterService registerService)
+    public AuthController(ILoginService loginService,
+                          IRegisterService registerService,
+                          UserManager<UserEntity> userManager,
+                          IConfiguration configuration,
+                          IMailSender mailSender)
     {
         _loginService = loginService;
         _registerService = registerService;
+        _userManager = userManager;
+        _configuration = configuration;
+        _mailSender = mailSender;
     }
 
     [HttpPost("login")]
@@ -54,6 +66,65 @@ public class AuthController : ControllerBase
         {
             throw new Exception(e.Message);
         }
+    }
+
+    [HttpPost("signin-google")]
+    public async Task<IActionResult> SignInWithGoogle(LoginWithGoogle loginWithGoogle)
+    {
+        var payload =  await _loginService.VerifyGoogleToken(loginWithGoogle.Provider!, loginWithGoogle.IdToken!);
+
+        if (payload is null)
+        return BadRequest(new
+        {
+            Succeded = false
+        });
+        var info = new UserLoginInfo(loginWithGoogle.Provider!, payload.Subject, loginWithGoogle.Provider);
+
+        var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+        if(user is null)
+        {
+            user = await _userManager.FindByEmailAsync(payload.Email);
+            if(user is null)
+            {
+                user = new UserEntity { Email = payload.Email, UserName = payload.Email };
+                var result = await _userManager.CreateAsync(user);
+                if (!result.Succeeded) return BadRequest(new
+                {
+                    Succeeded = false,
+                    Errors = new List<string>(result.Errors.Select(x => x.Description)) { "Invalid External Auth" }
+                });
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(await _userManager.FindByEmailAsync(user.Email));
+                _mailSender.Send(user.Email, "Email Confirmation Message", @$"
+                <html>
+                <head> 
+                    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                </head>
+                <body>
+                    <h3>Your confirmation message</h3>
+                    <p>Visit through this link to confirm your email: </p>
+                    <form method=""post"" action=""{_configuration.GetSection("Urls")["ConfirmUrl"]}"">
+                        <input type=""hidden"" value=""{token}"" name=""token""/>
+                        <input type=""hidden"" value=""{user.Email}"" name=""email""/>
+                        <button type=""submit"" style=""background-color:#0669B4; color: white; padding: 30px; margin: 50px; width:100px; height: 30px"">
+                            Confirm
+                        </button>
+                    </form>
+                    <h5 stype=""padding: 10px;"">{token}</h5>
+                </body>
+                </html>
+            ");
+
+                await _userManager.AddLoginAsync(user, info);
+            }
+            else
+            {
+                await _userManager.AddLoginAsync(user, info);
+            }
+        }
+        var identityUser = await _userManager.FindByEmailAsync(user.Email);
+        var userRole = await _userManager.GetRolesAsync(identityUser);
+        var jwtToken =  _loginService.CreateJwtToken(identityUser.UserName, identityUser.Email, userRole[0], identityUser.Id);
+        return Ok(new { Succeeded = true, Token = jwtToken });
     }
 
     [HttpPost("merchant/register")]

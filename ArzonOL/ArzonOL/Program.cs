@@ -33,6 +33,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryApproachService, CategoryApproachService>();
 builder.Services.AddScoped<IProductMediaService, ProductMediaService>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IMailSender, MailSender>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
@@ -83,7 +84,13 @@ builder.Services.AddAuthentication(opt =>
     opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     Console.WriteLine("JwtBearerDefaults.AuthenticationScheme: " + JwtBearerDefaults.AuthenticationScheme);
-}).AddJwtBearer(options =>
+})
+.AddGoogle(googleOptions =>
+    {
+        googleOptions.ClientId = builder.Configuration["Authentication:client_id"]!;
+        googleOptions.ClientSecret = builder.Configuration["Authentication:client_secret"]!;
+    })
+.AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {

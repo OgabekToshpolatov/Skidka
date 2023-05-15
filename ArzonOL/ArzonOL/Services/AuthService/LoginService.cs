@@ -1,6 +1,7 @@
 using ArzonOL.Entities;
 using ArzonOL.Enums;
 using ArzonOL.Services.AuthService.Interfaces;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -28,11 +29,11 @@ public class LoginService : ILoginService
         _configuration = configuration;
     }
 
-    public string CreateJwtToken(string username, string password, string email, string role)
+    public string CreateJwtToken(string username, string email, string role, string userId)
     {
        _logger.LogInformation("Creating JWT token for user {username}", username);
 
-       if(string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(role))
+       if(string.IsNullOrEmpty(username) || string.IsNullOrEmpty(role))
        {
            _logger.LogWarning("Username or password is empty");
             return string.Empty;
@@ -41,7 +42,7 @@ public class LoginService : ILoginService
        var claims = new List<Claim>
        {
            new Claim(ClaimTypes.Name, username),
-           new Claim("Password", password),
+           new Claim("Id", userId),
            new Claim(ClaimTypes.Role, role),
            new Claim(ClaimTypes.Email, email)
        };
@@ -106,7 +107,7 @@ public class LoginService : ILoginService
             return string.Empty;
         }
 
-        var result =  CreateJwtToken(username, password, user.Email!, roles[0]);
+        var result =  CreateJwtToken(username, user.Email!, roles[0], user.Id);
 
         if(string.IsNullOrEmpty(result))
         return IdentityResult.Failed(new IdentityError{Code = EErrorType.ServerError.ToString(), Description = "Aniything went wrong"}).ToString();
@@ -187,6 +188,26 @@ public class LoginService : ILoginService
         {
             _logger.LogError(ex, "Token validation failed");
             return false;
+        }
+    }
+
+    public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(string provider, string idToken)
+    {
+        _logger.LogInformation("Started Verfiying");
+        try
+        {
+            var settings = new GoogleJsonWebSignature.ValidationSettings()
+            {
+                Audience = new List<string> { _configuration["Authentication:client_id"]!}
+            };
+
+            var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+            return payload;
+        }
+        catch (Exception)
+        {
+            _logger.LogInformation("Failed while verfiying GoogleToken");
+            return null;
         }
     }
 }
