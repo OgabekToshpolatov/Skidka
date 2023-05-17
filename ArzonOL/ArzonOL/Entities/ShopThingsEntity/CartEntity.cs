@@ -4,7 +4,9 @@ namespace ArzonOL.Entities;
 
 public class CartEntity : BaseEntity
 {
-    public Guid? UserId { get; set; }
+    public string? UserId { get; set; }
+
+    [ForeignKey(nameof(UserId))]
     public virtual UserEntity? User { get; set; }
     public virtual ICollection<CartProduct>? CartProducts { get; set; }
 }
