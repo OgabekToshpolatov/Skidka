@@ -41,6 +41,16 @@ public class AuthController : ControllerBase
             if (string.IsNullOrEmpty(token))
                 return BadRequest("Username or password is incorrect");
 
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.UtcNow.AddDays(7), // Muddati - 7 kun
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            };
+
+            Response.Cookies.Append("AuthToken", token, cookieOptions);
+
             return Ok(token);
         }
         catch (System.Exception e)

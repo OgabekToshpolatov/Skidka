@@ -143,15 +143,12 @@ namespace ArzonOL.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UserId1")
+                    b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Carts");
                 });
@@ -563,8 +560,8 @@ namespace ArzonOL.Migrations
             modelBuilder.Entity("ArzonOL.Entities.CartEntity", b =>
                 {
                     b.HasOne("ArzonOL.Entities.UserEntity", "User")
-                        .WithMany("Carts")
-                        .HasForeignKey("UserId1");
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -709,8 +706,6 @@ namespace ArzonOL.Migrations
 
             modelBuilder.Entity("ArzonOL.Entities.UserEntity", b =>
                 {
-                    b.Navigation("Carts");
-
                     b.Navigation("Products");
 
                     b.Navigation("Voters");

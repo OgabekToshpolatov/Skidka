@@ -25,11 +25,11 @@ public class ProductService : IProductService
             if(createProductDto.OldPrice <= createProductDto.NewPrice)
             return new Result<ProductModel>(isSuccess:false, errorMessage:"NewPrice must lower from OldPrice"){Data = null};
             
-            var isExistUserId = _unitOfWork.ProductRepository.Find(x => x.UserEntityId == createProductDto.UserId.ToString());
+            var isExistUserId = _unitOfWork.UserRepository.Find(x => x.Id == createProductDto.UserId.ToString());
             if(isExistUserId.Count() == 0)
             return new Result<ProductModel>(isSuccess:false, errorMessage:"UserId hato kiritildi");
 
-            var isExistCategoryId = _unitOfWork.ProductRepository.Find(x => x.ProductCategoryApproachId == createProductDto.ProductCategoryApproachId);
+            var isExistCategoryId = _unitOfWork.CategoryApproachRepository.Find(x => x.Id == createProductDto.ProductCategoryApproachId);
             if(isExistCategoryId.Count() == 0)
             return new Result<ProductModel>(isSuccess:false, errorMessage:"ProductCategoryApproachId hato kiritildi");
             

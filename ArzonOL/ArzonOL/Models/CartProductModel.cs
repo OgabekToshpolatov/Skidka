@@ -2,5 +2,8 @@ namespace ArzonOL.Models;
 
 public class CartProductModel
 {
-     public virtual ProductModel? Product { get; set; }
+     public Guid Id {get;set;}
+     public ProductModel? Product { get; set; }
+     public Guid CartId { get; set; }
+
 }
