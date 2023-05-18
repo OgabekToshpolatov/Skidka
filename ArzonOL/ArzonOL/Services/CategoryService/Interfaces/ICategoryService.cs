@@ -1,12 +1,13 @@
 using ArzonOL.Dtos.CategoryDtos;
+using ArzonOL.Models;
 
 namespace ArzonOL.Services.CategoryService.Interfaces;
 
 public interface ICategoryService
 {
-    ValueTask<CategoryResponseDto> CreateAsync(CreateOrUpdateCategoryDto model);
-    ValueTask<CategoryResponseDto> Update(Guid id, CreateOrUpdateCategoryDto model);
-    ValueTask<CategoryResponseDto> Remove(Guid id);
-    ValueTask<List<CategoryResponseDto>> GetAll();
-    ValueTask<CategoryResponseIdDto> GetByIdAsync(Guid id);
+    ValueTask<Result<CategoryResponseDto>> CreateAsync(CreateOrUpdateCategoryDto model);
+    ValueTask<Result<CategoryResponseDto>> Update(Guid id, CreateOrUpdateCategoryDto model);
+    ValueTask<Result<CategoryResponseDto>> Remove(Guid id);
+    ValueTask<Result<List<CategoryResponseDto>>> GetAll();
+    ValueTask<Result<CategoryResponseIdDto>> GetByIdAsync(Guid id);
 }
