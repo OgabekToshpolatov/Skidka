@@ -20,4 +20,22 @@ public class AppDbContext : IdentityDbContext<UserEntity>
         // comment
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ProductCategoryEntity>()
+                    .HasMany(c => c.Approaches)
+                    .WithOne(p => p.ProductCategory)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ProductCategoryApproachEntity>()
+                    .HasMany(c => c.Products)
+                    .WithOne(p => p.ProductCategoryApproach)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+        base.OnModelCreating(modelBuilder);
+
+
+        
+    }
+
 }
