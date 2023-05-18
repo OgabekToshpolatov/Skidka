@@ -6,6 +6,7 @@ using ArzonOL.Repositories.Interfaces;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using ArzonOL.Services.CategoryService.Interfaces;
+using ArzonOL.Models;
 
 namespace ArzonOL.Services.CategoryService;
 
@@ -22,7 +23,7 @@ public class CategoryService : ICategoryService
         _logger = logger ;
         _unitOfWork = unitOfWork ;
     }
-    public async  ValueTask<CategoryResponseDto> CreateAsync(CreateOrUpdateCategoryDto model)
+    public async ValueTask<Result<CategoryResponseDto>> CreateAsync(CreateOrUpdateCategoryDto model)
     {
         try
         {
@@ -31,7 +32,7 @@ public class CategoryService : ICategoryService
             foreach(var categoryName in categoryNames)
             {
             if(categoryName.Name!.ToLower() == model.Name!.ToLower())
-                    throw new BadRequestException("category already exists");
+                    return new Result<CategoryResponseDto>(isSuccess:false, errorMessage: "Category already exists"){Data = null};
             }
 
             var category = new ProductCategoryEntity
@@ -44,91 +45,128 @@ public class CategoryService : ICategoryService
             };
 
             var createCategory =await  _unitOfWork.CategoryRepository.AddAsync(category);
-
-            return createCategory.Adapt<CategoryResponseDto>();
+            return new(true) { Data = createCategory.Adapt<CategoryResponseDto>()};
         }
         catch (System.Exception e)
         {
-            _logger.LogInformation("Error while creating Category");
+            _logger.LogInformation(e.Message);
             throw new Exception(e.Message);
         }
     }
 
-    public async ValueTask<List<CategoryResponseDto>> GetAll()
+    public async ValueTask<Result<List<CategoryResponseDto>>> GetAll()
     {
-
-        var categories = _unitOfWork.CategoryRepository.GetAll();
-
-        if(categories is null)
-            throw new("There are no categories yet");
-    
-        var categoriestDto =await categories.Select(category => category.Adapt<CategoryResponseDto>()).ToListAsync();
-
-        return categoriestDto;           
-    }
-
-    public async ValueTask<CategoryResponseIdDto> GetByIdAsync(Guid id)
-    {
-        var existingCategory = _unitOfWork.CategoryRepository.GetById(id);
-        
-        if(existingCategory is null)
-                throw new BadRequestException("Category with given Id not found.");
-                
-        var categoryApproachList = await _unitOfWork.CategoryApproachRepository
-                                            .GetAll().Where(x => x.ProductCategoryId == id).ToListAsync();
-        
-        var categoryApproachListView = categoryApproachList
-                    .Select(approach => approach.Adapt<CategoryApproachResponseDto>()).ToList();
-
-        var categoryResponseIdDto = new CategoryResponseIdDto
+        try
         {
-            Id = existingCategory.Id,
-            Name = existingCategory.Name,
-            Description = existingCategory.Description,
-            CreatedAt = existingCategory.CreatedAt,
-            UpdatedAt = existingCategory.UpdatedAt,
-            Approaches = categoryApproachListView
-        };
+            var categories = _unitOfWork.CategoryRepository.GetAll();
 
-        return categoryResponseIdDto;
-    }
-
-    public async ValueTask<CategoryResponseDto> Remove(Guid id)
-    {
-        var existingCategory =  _unitOfWork.CategoryRepository.GetById(id);
-                    
-        if(existingCategory is null)
-                throw new BadRequestException("Category with given Id not found.");
+            if(categories is null)
+            {
+                return new Result<List<CategoryResponseDto>>(isSuccess:false, errorMessage: " This product does not exist "){Data = null};
+            }
+        
+            var categoriestDto =await categories.Select(category => category.Adapt<CategoryResponseDto>()).ToListAsync();
             
-        var removeCategory = await _unitOfWork.CategoryRepository.Remove(existingCategory);
-
-        if(removeCategory is null)
-                throw new BadHttpRequestException("Removing the quiz failed. Contact support.");
-            
-        return removeCategory.Adapt<CategoryResponseDto>();
-    }
-
-    public async ValueTask<CategoryResponseDto> Update(Guid id, CreateOrUpdateCategoryDto model)
-    {
-        var existingCategory =  _unitOfWork.CategoryRepository.GetById(id);
-                    
-        if(existingCategory is null)
-                throw new BadRequestException("Category with given Id not found.");
-
-        var categoryNames = _unitOfWork.CategoryRepository.GetAll().Where(c => c.Name == model.Name);
-
-        foreach(var categoryName in categoryNames)
-        {
-            if(categoryName.Name!.ToLower() == model.Name!.ToLower())
-                  throw new BadRequestException("category already exists");
+            return new(true) { Data = categoriestDto };
         }
+        catch (System.Exception e)
+        {
+            _logger.LogInformation(e.Message);
+            throw new Exception(e.Message);
+        }
+
+           
+    }
+
+    public async ValueTask<Result<CategoryResponseIdDto>> GetByIdAsync(Guid id)
+    {
+        try
+        {
+            var existingCategory = _unitOfWork.CategoryRepository.GetById(id);
         
-        existingCategory.Name = model.Name;
-        existingCategory.Description = model.Description;
-        existingCategory.UpdatedAt = DateTime.Now;
+            if(existingCategory is null)
+                    return new Result<CategoryResponseIdDto>(isSuccess:false, errorMessage: " Category with given Id not found."){Data = null};
+                    
+            var categoryApproachList = await _unitOfWork.CategoryApproachRepository
+                                                .GetAll().Where(x => x.ProductCategoryId == id).ToListAsync();
+            
+            var categoryApproachListView = categoryApproachList
+                        .Select(approach => approach.Adapt<CategoryApproachResponseDto>()).ToList();
 
-        var updateCategory = await _unitOfWork.CategoryRepository.Update(existingCategory);
+            var categoryResponseIdDto = new CategoryResponseIdDto
+            {
+                Id = existingCategory.Id,
+                Name = existingCategory.Name,
+                Description = existingCategory.Description,
+                CreatedAt = existingCategory.CreatedAt,
+                UpdatedAt = existingCategory.UpdatedAt,
+                Approaches = categoryApproachListView
+            };
 
-        return updateCategory.Adapt<CategoryResponseDto>();
+            return new(true) { Data = categoryResponseIdDto };
+        }
+        catch (System.Exception e)
+        {
+            _logger.LogInformation(e.Message);
+            throw new Exception(e.Message);
+        }
+    }
+
+    public async ValueTask<Result<CategoryResponseDto>> Remove(Guid id)
+    {
+        try
+        {
+            var existingCategory =  _unitOfWork.CategoryRepository.GetById(id);
+                    
+            if(existingCategory is null)
+                    return new Result<CategoryResponseDto>(isSuccess:false, errorMessage: " Category with given Id not found."){Data = null};
+                
+            var removeCategory = await _unitOfWork.CategoryRepository.Remove(existingCategory);
+
+            if(removeCategory is null)
+                   return new Result<CategoryResponseDto>(isSuccess:false, errorMessage: "Removing the quiz failed. Contact support"){Data = null};
+                   
+                
+            return new(true) { Data = removeCategory.Adapt<CategoryResponseDto>()};
+        }
+        catch (System.Exception e)
+        {
+            _logger.LogInformation(e.Message);
+            throw new Exception(e.Message);
+        }
+;
+    }
+
+    public async ValueTask<Result<CategoryResponseDto>> Update(Guid id, CreateOrUpdateCategoryDto model)
+    {
+        try
+        {
+            var existingCategory =  _unitOfWork.CategoryRepository.GetById(id);
+                    
+            if(existingCategory is null)
+                    return new Result<CategoryResponseDto>(isSuccess:false, errorMessage: "Category with given Id not found."){Data = null};
+
+            var categoryNames = _unitOfWork.CategoryRepository.GetAll().Where(c => c.Name == model.Name);
+
+            foreach(var categoryName in categoryNames)
+            {
+                if(categoryName.Name!.ToLower() == model.Name!.ToLower())
+                    return new Result<CategoryResponseDto>(isSuccess:false, errorMessage: "Category already exists"){Data = null};
+            }
+            
+            existingCategory.Name = model.Name;
+            existingCategory.Description = model.Description;
+            existingCategory.UpdatedAt = DateTime.Now;
+
+            var updateCategory = await _unitOfWork.CategoryRepository.Update(existingCategory);
+
+            return new(true) { Data =updateCategory.Adapt<CategoryResponseDto>()};
+        }
+        catch (System.Exception e)
+        {       
+            _logger.LogInformation(e.Message);
+            throw new Exception(e.Message);
+        }
+
     }
 }
