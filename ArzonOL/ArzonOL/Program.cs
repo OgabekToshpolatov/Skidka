@@ -126,7 +126,7 @@ app.UseHttpsRedirection();
 app.UseCors("CorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseMiddleware<ErrorHandlerMiddleware>();
+// app.UseMiddleware<ErrorHandlerMiddleware>();
 app.MapControllers();
 await InitializeDataService.CreateDefaultAdmin(app);
 await InitializeDataService.CreateDefaultRoles(app);

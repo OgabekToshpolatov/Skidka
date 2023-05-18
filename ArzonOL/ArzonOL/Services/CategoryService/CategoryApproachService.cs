@@ -6,6 +6,7 @@ using ArzonOL.Repositories.Interfaces;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using ArzonOL.Services.CategoryService.Interfaces;
+using ArzonOL.Models;
 
 namespace ArzonOL.Services.CategoryService;
 
@@ -22,84 +23,121 @@ public class CategoryApproachService : ICategoryApproachService
         _logger = logger ;
         _unitOfWork = unitOfWork ;
     }
-    public async ValueTask<CategoryApproachResponseDto> CreateAsync(CreateOrUpdateCategoryApproachDto model)
+    public async ValueTask<Result<CategoryApproachResponseDto>> CreateAsync(CreateOrUpdateCategoryApproachDto model)
     {
-        var categoryApproachNames = _unitOfWork.CategoryApproachRepository.GetAll().Where(c => c.Name ==  model.Name);
-
-        foreach(var categoryApproachName in categoryApproachNames)
+        try
         {
-            if(categoryApproachName.Name!.ToLower() == model.Name!.ToLower())
-                  throw new BadRequestException("category already exists");
+             var categoryApproachNames = _unitOfWork.CategoryApproachRepository.GetAll().Where(c => c.Name ==  model.Name);
+
+            foreach(var categoryApproachName in categoryApproachNames)
+            {
+                if(categoryApproachName.Name!.ToLower() == model.Name!.ToLower())
+                    return new Result<CategoryApproachResponseDto>(isSuccess:false, errorMessage: "CategoryApproach already exists"){ Data = null };
+            }
+            
+            var categoryApproach = new ProductCategoryApproachEntity
+            {
+                Id = Guid.NewGuid(),
+                Name = model.Name,
+                Description = model.Description,
+                ProductCategoryId = model.ProductCategoryId,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
+            };
+
+            var createCategoryApproach = await  _unitOfWork.CategoryApproachRepository.AddAsync(categoryApproach);
+    
+            return new(true) { Data = createCategoryApproach.Adapt<CategoryApproachResponseDto>()};
         }
-        
-        var categoryApproach = new ProductCategoryApproachEntity
+        catch (System.Exception e)
         {
-            Id = Guid.NewGuid(),
-            Name = model.Name,
-            Description = model.Description,
-            ProductCategoryId = model.ProductCategoryId,
-            CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now
-        };
+            _logger.LogInformation(e.Message);
+            throw new Exception(e.Message);
+        }
+;
+    }
 
-        var createCategoryApproach = await  _unitOfWork.CategoryApproachRepository.AddAsync(categoryApproach);
+    public async ValueTask<Result<List<CategoryApproachResponseDto>>> GetAll()
+    {
+        try
+        {
+            var categoryAppproachs = _unitOfWork.CategoryApproachRepository.GetAll();
+
+            if(categoryAppproachs.Count() == 0)
+                     return new Result<List<CategoryApproachResponseDto>>(isSuccess:false, errorMessage: " There are no categories yet"){Data = null};
+        
+            var categoriestApproachDto = await categoryAppproachs
+                                .Select(categoryApproach => categoryApproach.Adapt<CategoryApproachResponseDto>()).ToListAsync();
+        
+            return new(true) { Data = categoriestApproachDto };
+        }
+        catch (System.Exception e)
+        {
+            _logger.LogInformation(e.Message);
+            throw new Exception(e.Message);
+        }
  
-        return createCategoryApproach.Adapt<CategoryApproachResponseDto>();
     }
 
-    public async ValueTask<List<CategoryApproachResponseDto>> GetAll()
+    public async ValueTask<Result<CategoryApproachResponseIdDto>> GetByIdAsync(Guid id)
     {
-        var categoryAppproachs = _unitOfWork.CategoryApproachRepository.GetAll();
-
-        if(categoryAppproachs.Count() == 0)
-            throw new("There are no categories yet");
-    
-        var categoriestApproachDto = await categoryAppproachs
-                            .Select(categoryApproach => categoryApproach.Adapt<CategoryApproachResponseDto>()).ToListAsync();
-    
-        return categoriestApproachDto; 
-    }
-
-    public async ValueTask<CategoryApproachResponseIdDto> GetByIdAsync(Guid id)
-    {
-        var existingCategoryApproach = _unitOfWork.CategoryApproachRepository.GetById(id);
-        
-        if(existingCategoryApproach is null)
-                throw new BadRequestException("CategoryApproach with given Id not found.");
-
-        var categoryProductList = await _unitOfWork.ProductRepository
-                                        .GetAll().Where(x => x.ProductCategoryApproachId == id).ToListAsync();
-
-        var categoryProductListView = categoryProductList
-                    .Select(product => product.Adapt<ProductResponseDto>()).ToList();
-        
-        var categoryApproachDtoView = new CategoryApproachResponseIdDto
+        try
         {
-            Id = existingCategoryApproach.Id,
-            Name = existingCategoryApproach.Name,
-            Description = existingCategoryApproach.Description,
-            ProductCategoryId = existingCategoryApproach.ProductCategoryId,
-            CreatedAt = existingCategoryApproach.CreatedAt,
-            UpdatedAt = existingCategoryApproach.UpdatedAt,
-            Products = categoryProductListView
-        };
+            var existingCategoryApproach = _unitOfWork.CategoryApproachRepository.GetById(id);
+        
+            if(existingCategoryApproach is null)
+                    return new Result<CategoryApproachResponseIdDto>(isSuccess:false, errorMessage: " CategoryApproach with given Id not found."){Data = null};;
 
-        return categoryApproachDtoView;
+            var categoryProductList = await _unitOfWork.ProductRepository
+                                            .GetAll().Where(x => x.ProductCategoryApproachId == id).ToListAsync();
+
+            var categoryProductListView = categoryProductList
+                        .Select(product => product.Adapt<ProductResponseDto>()).ToList();
+            
+            var categoryApproachDtoView = new CategoryApproachResponseIdDto
+            {
+                Id = existingCategoryApproach.Id,
+                Name = existingCategoryApproach.Name,
+                Description = existingCategoryApproach.Description,
+                ProductCategoryId = existingCategoryApproach.ProductCategoryId,
+                CreatedAt = existingCategoryApproach.CreatedAt,
+                UpdatedAt = existingCategoryApproach.UpdatedAt,
+                Products = categoryProductListView
+            };
+
+            return new(true) { Data = categoryApproachDtoView};
+        }
+        catch (System.Exception e)
+        {
+             _logger.LogInformation(e.Message);
+            throw new Exception(e.Message);
+        }
+
     }
 
-    public async ValueTask<CategoryApproachResponseDto> Remove(Guid id)
+    public async ValueTask<Result<CategoryApproachResponseDto>> Remove(Guid id)
     {
-        var existingCategoryApproach = _unitOfWork.CategoryApproachRepository.GetById(id);
-        
-        if(existingCategoryApproach is null)
-                throw new BadRequestException("CategoryApproach with given Id not found.");
-            
-        var removeCategoryApproach = await _unitOfWork.CategoryApproachRepository.Remove(existingCategoryApproach);
+        try
+        {
+            var existingCategoryApproach = _unitOfWork.CategoryApproachRepository.GetById(id);
+            System.Console.WriteLine("########################################################################################");
+            if(existingCategoryApproach is null)
+                   return new Result<CategoryApproachResponseDto>(isSuccess:false, errorMessage: " CategoryApproach with given Id not found."){Data = null};
+            System.Console.WriteLine("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");    
+            var removeCategoryApproach = await _unitOfWork.CategoryApproachRepository.Remove(existingCategoryApproach);
+            System.Console.WriteLine(")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))");
+            if(removeCategoryApproach is null)
+                    return new Result<CategoryApproachResponseDto>(isSuccess:false, errorMessage: "Removing the categoryApproach failed. Contact support"){Data = null};
+             System.Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");       
+                
+            return new(true) { Data = removeCategoryApproach.Adapt<CategoryApproachResponseDto>()};
+        }
+        catch (System.Exception e)
+        {
+            _logger.LogInformation(e.Message);
+            throw new Exception(e.Message);
+        }
 
-        if(removeCategoryApproach is null)
-                throw new BadHttpRequestException("Removing the categoryApproach failed. Contact support.");
-            
-        return removeCategoryApproach.Adapt<CategoryApproachResponseDto>();
     }
 
     public async ValueTask<CategoryApproachResponseDto> Update(Guid id, CreateOrUpdateCategoryApproachDto model)

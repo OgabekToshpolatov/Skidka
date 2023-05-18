@@ -1,6 +1,6 @@
 using System;
 using ArzonOL.Entities;
-using ArzonOL.Exceptions;
+// using ArzonOL.Exceptions;
 using ArzonOL.Dtos.CategoryDtos;
 using ArzonOL.Repositories.Interfaces;
 using Mapster;

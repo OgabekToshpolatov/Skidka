@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArzonOL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230515230935_init")]
-    partial class init
+    [Migration("20230518093609_Added modelBuilder Cascade Approach")]
+    partial class AddedmodelBuilderCascadeApproach
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,6 +21,9 @@ namespace ArzonOL.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "7.0.5")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -526,7 +529,8 @@ namespace ArzonOL.Migrations
 
                     b.HasOne("ArzonOL.Entities.ProductCategoryApproachEntity", "ProductCategoryApproach")
                         .WithMany("Products")
-                        .HasForeignKey("ProductCategoryApproachId");
+                        .HasForeignKey("ProductCategoryApproachId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("ArzonOL.Entities.UserEntity", "UserEntity")
                         .WithMany("Products")
@@ -592,7 +596,8 @@ namespace ArzonOL.Migrations
                 {
                     b.HasOne("ArzonOL.Entities.ProductCategoryEntity", "ProductCategory")
                         .WithMany("Approaches")
-                        .HasForeignKey("ProductCategoryId");
+                        .HasForeignKey("ProductCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("ProductCategory");
                 });
