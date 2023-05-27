@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArzonOL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230518093609_Added modelBuilder Cascade Approach")]
-    partial class AddedmodelBuilderCascadeApproach
+    [Migration("20230526070012_Migrations")]
+    partial class Migrations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -375,15 +375,12 @@ namespace ArzonOL.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UserId1")
+                    b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("UserId");
 
                     b.ToTable("WishLists");
                 });
@@ -632,7 +629,7 @@ namespace ArzonOL.Migrations
                 {
                     b.HasOne("ArzonOL.Entities.UserEntity", "User")
                         .WithMany("WishLists")
-                        .HasForeignKey("UserId1");
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });

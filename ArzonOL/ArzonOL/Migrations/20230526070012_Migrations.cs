@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ArzonOL.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class Migrations : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -195,8 +195,7 @@ namespace ArzonOL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UserId1 = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -204,8 +203,8 @@ namespace ArzonOL.Migrations
                 {
                     table.PrimaryKey("PK_WishLists", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_WishLists_AspNetUsers_UserId1",
-                        column: x => x.UserId1,
+                        name: "FK_WishLists_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                 });
@@ -276,7 +275,8 @@ namespace ArzonOL.Migrations
                         name: "FK_Products_ProductCategoryApproaches_ProductCategoryApproachId",
                         column: x => x.ProductCategoryApproachId,
                         principalTable: "ProductCategoryApproaches",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Products_WishLists_WishListId",
                         column: x => x.WishListId,
@@ -490,9 +490,9 @@ namespace ArzonOL.Migrations
                 column: "UserId1");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WishLists_UserId1",
+                name: "IX_WishLists_UserId",
                 table: "WishLists",
-                column: "UserId1");
+                column: "UserId");
         }
 
         /// <inheritdoc />

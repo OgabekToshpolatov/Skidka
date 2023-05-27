@@ -8,6 +8,4 @@ public class CartProduct:BaseEntity
     public virtual BaseProductEntity? Product { get; set; }
     public Guid CartId { get; set; }
     public virtual CartEntity? Cart { get; set; }
-
-
 }

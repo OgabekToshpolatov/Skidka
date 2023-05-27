@@ -1,4 +1,4 @@
-#pragma warning disable
+
 using ArzonOL.Dtos.ProductDtos;
 using ArzonOL.Entities;
 using ArzonOL.Models;
