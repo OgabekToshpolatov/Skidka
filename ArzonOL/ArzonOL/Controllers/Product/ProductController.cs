@@ -20,7 +20,7 @@ namespace ArzonOL.Controllers.Product
             _productService = productService;
         }
 
-        [HttpGet("all")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Result<IEnumerable<ProductModel>>))]
         public async Task<IActionResult> GetAllProducts()
         {
@@ -28,7 +28,7 @@ namespace ArzonOL.Controllers.Product
             return Ok(products);
         }
 
-        [HttpGet("GetWithPagination")]
+        [HttpGet("getAllWithPagination")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Result<IEnumerable<ProductModel>>))]
         public async Task<IActionResult> GetProductWithPagination(int page, int limit)
         {
@@ -39,7 +39,7 @@ namespace ArzonOL.Controllers.Product
             return Ok(paginatedProducts);
         }
 
-        [HttpPost("createProduct")]
+        [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Result<ProductModel>))]
         public async Task<IActionResult> CreateProduct(CreateProductDto createProductDto)
         {
@@ -50,7 +50,7 @@ namespace ArzonOL.Controllers.Product
             return Ok(createdProduct);
         }
 
-        [HttpPut("updateProduct")]
+        [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Result<ProductModel>))]
         public async Task<IActionResult> UpdateProduct(UpdateProductDto updateProductDto)
         {
@@ -61,7 +61,7 @@ namespace ArzonOL.Controllers.Product
             return Ok(updatedProduct);
         }
 
-        [HttpDelete("deleteProduct")]
+        [HttpDelete]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Result))]
         public async Task<IActionResult> DeleteProduct([FromForm]Guid id)
         {
@@ -72,7 +72,7 @@ namespace ArzonOL.Controllers.Product
             return Ok(result);
         }
 
-        [HttpGet("getWithId")]
+        [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Result<ProductModel>))]
         public async Task<IActionResult> GetWithId(Guid id)
         {

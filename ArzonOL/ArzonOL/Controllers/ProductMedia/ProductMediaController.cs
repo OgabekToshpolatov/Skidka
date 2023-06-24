@@ -16,22 +16,22 @@ public class ProductMediaController : ControllerBase
         _producMediaService = producMediaService;
     }
 
-    [HttpPost("create")]
+    [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Result<ProductMediaModel>))]
     public async Task<IActionResult> CreateMedia(CreateOrUpdateMediaDto creteOrUpdate)
     => Ok(await _producMediaService.CreateAsync(creteOrUpdate));
 
-    [HttpPatch("update")]
+    [HttpPatch]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Result<ProductMediaModel>))]
     public async Task<IActionResult> UpdateMedia(CreateOrUpdateMediaDto updateMediaDto)
     => Ok(await _producMediaService.UpdateAsync(updateMediaDto));
 
-    [HttpDelete("delete")]
+    [HttpDelete]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Result))]
     public async Task<IActionResult> RemoveMedia(Guid id)
     => Ok(await _producMediaService.RemoveAsync(id));
 
-    [HttpGet("getAll")]
+    [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Result<List<ProductMediaModel>>))]
     public async Task<IActionResult> GetAllMedias()
     => Ok(await _producMediaService.GetAll());
